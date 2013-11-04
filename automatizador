@@ -1,0 +1,597 @@
+import static org.semanticweb.owlapi.vocab.OWLFacet.*;
+//imports para readers
+import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.File;
+import java.util.StringTokenizer;
+
+//para cargar Files que se usara en el buffered reader
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+//para cargar un set de caracteres para el encoding del reader
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+
+
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+//Imports para OWL y ontologia
+import org.coode.owlapi.manchesterowlsyntax.ManchesterOWLSyntaxOntologyFormat;
+import org.coode.owlapi.turtle.TurtleOntologyFormat;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.OWLOntologyDocumentTarget;
+import org.semanticweb.owlapi.io.OWLXMLOntologyFormat;
+import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
+import org.semanticweb.owlapi.io.StreamDocumentTarget;
+import org.semanticweb.owlapi.io.StringDocumentTarget;
+import org.semanticweb.owlapi.io.SystemOutDocumentTarget;
+import org.semanticweb.owlapi.model.AddAxiom;
+import org.semanticweb.owlapi.model.AddOntologyAnnotation;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataExactCardinality;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataPropertyAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLDataPropertyRangeAxiom;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLDataSomeValuesFrom;
+import org.semanticweb.owlapi.model.OWLDataUnionOf;
+import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLDatatypeDefinitionAxiom;
+import org.semanticweb.owlapi.model.OWLDatatypeRestriction;
+import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
+import org.semanticweb.owlapi.model.OWLDifferentIndividualsAxiom;
+import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
+import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
+import org.semanticweb.owlapi.model.OWLFacetRestriction;
+import org.semanticweb.owlapi.model.OWLFunctionalDataPropertyAxiom;
+import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLObjectAllValuesFrom;
+import org.semanticweb.owlapi.model.OWLObjectExactCardinality;
+import org.semanticweb.owlapi.model.OWLObjectHasValue;
+import org.semanticweb.owlapi.model.OWLObjectIntersectionOf;
+import org.semanticweb.owlapi.model.OWLObjectOneOf;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
+import org.semanticweb.owlapi.model.OWLObjectSomeValuesFrom;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyFormat;
+import org.semanticweb.owlapi.model.OWLOntologyID;
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
+import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
+import org.semanticweb.owlapi.model.PrefixManager;
+import org.semanticweb.owlapi.model.SWRLAtom;
+import org.semanticweb.owlapi.model.SWRLObjectPropertyAtom;
+import org.semanticweb.owlapi.model.SWRLRule;
+import org.semanticweb.owlapi.model.SWRLVariable;
+import org.semanticweb.owlapi.model.SetOntologyID;
+import org.semanticweb.owlapi.reasoner.BufferingMode;
+import org.semanticweb.owlapi.reasoner.ConsoleProgressMonitor;
+import org.semanticweb.owlapi.reasoner.InferenceType;
+import org.semanticweb.owlapi.reasoner.Node;
+import org.semanticweb.owlapi.reasoner.NodeSet;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasoner;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
+import org.semanticweb.owlapi.util.AutoIRIMapper;
+import org.semanticweb.owlapi.util.DefaultPrefixManager;
+import org.semanticweb.owlapi.util.InferredAxiomGenerator;
+import org.semanticweb.owlapi.util.InferredOntologyGenerator;
+import org.semanticweb.owlapi.util.InferredSubClassAxiomGenerator;
+import org.semanticweb.owlapi.util.OWLClassExpressionVisitorAdapter;
+import org.semanticweb.owlapi.util.OWLEntityRemover;
+import org.semanticweb.owlapi.util.OWLOntologyMerger;
+import org.semanticweb.owlapi.util.OWLOntologyWalker;
+import org.semanticweb.owlapi.util.OWLOntologyWalkerVisitor;
+import org.semanticweb.owlapi.util.SimpleIRIMapper;
+import org.semanticweb.owlapi.vocab.OWL2Datatype;
+import org.semanticweb.owlapi.vocab.OWLFacet;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+
+import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
+import uk.ac.manchester.cs.owlapi.modularity.SyntacticLocalityModuleExtractor;
+/**
+ *
+ * @author Paulo A. Picota C. 
+ */
+public class Testing_Reglas{
+   //creamos un manejador para la ontologia
+      static  OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+   //Abrimos la Ontologia desde un archivo owl.
+      static File fileOwl = new File("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/Prueba_Reglas.owl");
+   //necesitamos un Datafactory
+      static OWLDataFactory Reglafactory = manager.getOWLDataFactory();
+         
+  // Definimos las variables que vamos a utilizar para almacenar los valores de los campos de las reglas.
+  // las variables deben ser tipo String porque asi es como las lee el lector de linea
+    static  Integer id_regla =0 ; //el ide que le da numero a la regla
+    static  String accion_regla;
+    static  String protocolo_regla;
+    static  String dir_fuente_regla;
+    static  String mask_fuente_regla;
+    static  String dir_destino_regla;
+    static  String mask_destino_regla;
+    //para los puertos los inicializamos con valor de -1 para representar que no hay puertos asignados.
+    static  int puerto_fuente_regla=-1;
+    static  int puerto_destino_regla=-1;
+      
+    
+     public static void main(String[] args) throws OWLOntologyCreationException {
+      // Con el Manager declarado arriba cargamos la Ontologia desde archivo 
+      OWLOntology Onto = manager.loadOntologyFromOntologyDocument(fileOwl);
+             
+        try{        
+           LineReader(Onto);
+        }
+        catch(IOException e){   
+        }
+      
+        //Press enter to continue
+        System.out.println("Press ENTER to continue...");
+        try {
+            System.in.read();
+            while (System.in.available() > 0)
+                System.in.read(); //flush the buffer
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+ 
+  public static void LineReader(OWLOntology Onto) throws IOException 
+  {   //crear un path para encontrar el archivo.
+     Charset ENCODING = StandardCharsets.UTF_8;
+     //Path en la Vostro
+     //Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/pix.txt");
+     Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/LiLpix.txt");
+     //Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/test_texto.txt");
+     //Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/iptable.txt");
+     BufferedReader reader = Files.newBufferedReader(direccion,ENCODING);
+     String line = null;
+     int linea = 0;
+     String separador = " ";
+     String ValordeToken; 
+
+     while ((line = reader.readLine()) != null) {
+        //process each line in some way
+        linea++;//contador de lineas
+        id_regla += 1; //el ID aumenta con cada linea
+         StringTokenizer lineaDividir = new StringTokenizer(line,separador);
+        
+         //el ciclo while comienza siepre que halla mas elementos en el tokenizer
+         while (lineaDividir.hasMoreElements())
+            { ValordeToken = lineaDividir.nextElement().toString();//convierte el valor del "siguiente" elemento a string
+             if ("permit".equals(ValordeToken))//compara si el valor de el "siguiente elementeo es correcto 
+                {//while (lineaDividir.hasMoreElements()) {//separa todos los valores de los tokens y los trabaja individual
+                    //System.out.println("StringTokenizer Output: " + lineaDividir.nextElement());
+                    accion_regla = "permit";
+                    protocolo_regla = lineaDividir.nextElement().toString();
+                    ValordeToken = lineaDividir.nextElement().toString();
+                    switch(ValordeToken)//Switch #1 busca colocar la direccion fuente y la mascara
+                        { case "any":{
+                                  dir_fuente_regla = "255.255.255.255";
+                                  mask_fuente_regla = "32";    
+                                 }break;
+                        case "host":{
+                                  dir_fuente_regla = lineaDividir.nextElement().toString();
+                                  mask_fuente_regla = "32";
+                                }break;    
+                        default:{
+                                 dir_fuente_regla = ValordeToken;
+                                 mask_fuente_regla = lineaDividir.nextElement().toString();
+                                }break;
+                        }//fin del Switch #1
+                    ValordeToken = lineaDividir.nextElement().toString();
+                    switch(ValordeToken)//switch #2 busca un protocolo fuente en la regla 
+                        { case "eq":{
+                            ValordeToken = lineaDividir.nextElement().toString();
+                             puerto_fuente_regla = CalcularPuerto(ValordeToken);
+                             ValordeToken = lineaDividir.nextElement().toString();
+                                  }break;
+                         
+                         default:{
+                                }break;
+                        }//fin Switch #2
+                    switch(ValordeToken)//Switch #3 busca colocar la direccion destino y la mascara destino
+                        { case "any":{
+                                  dir_destino_regla = "255.255.255.255";
+                                  mask_destino_regla = "32";    
+                                 }break;
+                        case "host":{
+                                  dir_destino_regla = lineaDividir.nextElement().toString();
+                                  mask_destino_regla = "32";
+                                }break;    
+                        default:{
+                                 dir_destino_regla = ValordeToken;
+                                 mask_destino_regla = lineaDividir.nextElement().toString();
+                                }break;
+                        }//fin del Switch #3
+                    if(lineaDividir.hasMoreElements())//el ultimo condicional solo entra en juego si existen mas valores despues de la direccion y mascara destino
+                    { ValordeToken = lineaDividir.nextElement().toString(); 
+                      switch(ValordeToken)//switch #4 busca un protocolo destino en la regla 
+                        { case "eq":{
+                            ValordeToken = lineaDividir.nextElement().toString();
+                             puerto_destino_regla = CalcularPuerto(ValordeToken);
+                            }break;
+                          default :{
+                          }break;
+                        }//fin Switch #4
+                    }  
+                        
+                     try {//Este Catch es para CreationException
+                         try {//Este Catch es para StorageException 
+                            CargarValoresAlaOntologia(Onto);
+                         } catch (OWLOntologyStorageException ex) {
+                         Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
+                         }
+                     }catch (OWLOntologyCreationException ex) {
+                     Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
+                     }   
+                    System.out.println("Id: "+id_regla);
+                    System.out.println("accion: "+ accion_regla);
+                    System.out.println("protocolo: "+ protocolo_regla);
+                    System.out.println("add fuente: "+ dir_fuente_regla);
+                    System.out.println("mask fuente: "+ mask_fuente_regla);
+                    System.out.println("dest add: "+ dir_destino_regla);
+                    System.out.println("mask destino: "+ mask_destino_regla);
+                    System.out.println("puerto fuente: "+ puerto_fuente_regla);
+                    System.out.println("puerto dest: "+ puerto_destino_regla);
+                   // }//fin de while (lineaDividir.hasMoreElements()
+                }// fin de if ("permit".equals(ValordeToken))
+             //else si el valor no es permit entonces debe ser "deny"
+             else if ("deny".equals(ValordeToken))//compara si el valor de el "siguiente elementeo es correcto 
+                {//while (lineaDividir.hasMoreElements()) {//separa todos los valores de los tokens y los trabaja individual
+                    //System.out.println("StringTokenizer Output: " + lineaDividir.nextElement());
+                    accion_regla = "deny";
+                    protocolo_regla = lineaDividir.nextElement().toString();
+                    ValordeToken = lineaDividir.nextElement().toString();
+                    switch(ValordeToken)//Switch #1 busca colocar la direccion fuente y la mascara
+                        { case "any":{
+                                  dir_fuente_regla = "255.255.255.255";
+                                  mask_fuente_regla = "32";    
+                                 }break;
+                        case "host":{
+                                  dir_fuente_regla = lineaDividir.nextElement().toString();
+                                  mask_fuente_regla = "32";
+                                }break;    
+                        default:{
+                                 dir_fuente_regla = ValordeToken;
+                                 mask_fuente_regla = lineaDividir.nextElement().toString();
+                                }break;
+                        }//fin del Switch #1
+                    ValordeToken = lineaDividir.nextElement().toString();
+                    switch(ValordeToken)//switch #2 busca un protocolo fuente en la regla 
+                        { case "eq":{
+                            ValordeToken = lineaDividir.nextElement().toString();
+                             puerto_fuente_regla = CalcularPuerto(ValordeToken);
+                             ValordeToken = lineaDividir.nextElement().toString();
+                                  }break;
+                         
+                         default:{
+                                }break;
+                        }//fin Switch #2
+                    
+                    switch(ValordeToken)//Switch #3 busca colocar la direccion destino y la mascara destino
+                        { case "any":{
+                                  dir_destino_regla = "255.255.255.255";
+                                  mask_destino_regla = "32";    
+                                 }break;
+                        case "host":{
+                                  dir_destino_regla = lineaDividir.nextElement().toString();
+                                  mask_destino_regla = "32";
+                                }break;    
+                        default:{
+                                 dir_destino_regla = ValordeToken;
+                                 mask_destino_regla = lineaDividir.nextElement().toString();
+                                }break;
+                        }//fin del Switch #3
+                  if(lineaDividir.hasMoreElements())//el ultimo condicional solo entra en juego si existen mas valores despues de la direccion y mascara destino
+                    { ValordeToken = lineaDividir.nextElement().toString(); 
+                      switch(ValordeToken)//switch #4 busca un protocolo destino en la regla 
+                        { case "eq":{
+                            ValordeToken = lineaDividir.nextElement().toString();
+                             puerto_destino_regla = CalcularPuerto(ValordeToken);
+                            }break;
+                          default :{
+                          }break;
+                        }//fin Switch #4  
+                    }
+                     try {//Este Catch es para CreationException
+                         try {//Este Catch es para StorageException 
+                            CargarValoresAlaOntologia(Onto);
+                         } catch (OWLOntologyStorageException ex) {
+                         Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
+                         }
+                     }catch (OWLOntologyCreationException ex) {
+                     Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
+                     }   
+                    System.out.println("Id: "+id_regla);
+                    System.out.println("accion: "+ accion_regla);
+                    System.out.println("protocolo: "+ protocolo_regla);
+                    System.out.println("add fuente: "+ dir_fuente_regla);
+                    System.out.println("mask fuente: "+ mask_fuente_regla);
+                    System.out.println("dest add: "+ dir_destino_regla);
+                    System.out.println("dest mask: "+ mask_destino_regla);
+                    System.out.println("puerto fuente: "+ puerto_fuente_regla);
+                    System.out.println("puerto dest: "+ puerto_destino_regla);
+                   // }//fin de while (lineaDividir.hasMoreElements()
+                }// fin de else ("deny".equals(ValordeToken))   
+             
+            }// fin de  while (lineaDividir.hasMoreElements())         
+     }// fin de while ((line = reader.readLine()) != null)
+   System.out.println(linea);  
+  }
+ 
+public static void CargarValoresAlaOntologia(OWLOntology Onto) throws OWLOntologyCreationException, OWLOntologyStorageException
+  { 
+    // Con el Data factory podemos crear los individuals 
+     //creamos los nombres de los individuos que vamos a agrega a la ontolgia
+     String name_id = "id"+id_regla.toString();
+     //Accion NO porque solo existen dos acciones que ya estan definidas en la ontologia
+     //Protocolo NO porque solo existen tres valores posibles que ya estan en la ontologia
+     String name_dirfuente = "dirfuente"+id_regla.toString();
+     String name_mascfuente = "maskfuente"+id_regla.toString();
+     String name_dirdestino = "dirdestino"+id_regla.toString();
+     String name_mascdestino = "mascdestino"+id_regla.toString();
+     String name_puertofuente = "puertofuente"+id_regla.toString();
+     String name_puertodestino = "puertodestino"+id_regla.toString();
+     
+     //Calculamos el valor CIDR de las mascaras leidas
+     mask_fuente_regla = ConvertirMascaraCIDR(mask_fuente_regla);
+     mask_destino_regla = ConvertirMascaraCIDR(mask_destino_regla);
+     //Convertimos el valor de las direcciones fuente y destino a Bits
+     dir_fuente_regla = ConvertirDireccionBits(dir_fuente_regla,mask_fuente_regla);
+     dir_destino_regla = ConvertirDireccionBits(dir_destino_regla,mask_destino_regla);
+     
+     //usamos el data factory para crear los individuos
+     //es necesario capturar la clase primero para luego agregar el individuo a la clase
+               //ID
+     OWLClass classID = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ID"));
+     OWLIndividual ID = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+name_id));
+               //Accion
+     //Dependiendo del valor permit o deny se escoje al individuo correcto en la ontologia
+    OWLIndividual accion= Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#accept"));
+     switch(accion_regla)
+     {  case "permit":{
+            accion = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#accept"));
+            }break;
+        case "deny":{
+             accion = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#deny"));
+            }break;
+        default:
+     }    
+          //Protocolo
+     //Dependiendo del valor del protocolo, escogjemos el individuo de la ontologia correspondiente
+     OWLIndividual protocolo = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TCP"));
+     switch(protocolo_regla)
+     {  case "tcp":{
+             protocolo = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TCP"));
+            
+        }break;
+        case "ip":{
+              protocolo = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#IP"));
+        }break;
+        case "udp":{
+             protocolo = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#UDP"));
+        }break;
+        default:
+     }
+              //direccion de origen
+     OWLClass classDirFuente = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#Bits_de_Red_DirFuente"));
+     OWLIndividual dirfuente = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+name_dirfuente));
+               //Mascara  de origen  
+     OWLClass classMascFuente = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#MascFuente"));
+     OWLIndividual mascfuente = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+name_mascfuente));
+               //direccion de destino
+     OWLClass classDirDest = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#Bits_de_Red_DirDest"));
+     OWLIndividual dirdest = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+ name_dirdestino));
+               //mascara de destino
+     OWLClass classMascDest = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#MascDest"));
+     OWLIndividual mascdest = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+name_mascdestino));
+                //Puerto Fuente
+     OWLClass classPuertFuente = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#PuertoFuente"));
+     OWLIndividual puertofuente = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+name_puertofuente));
+                //Puerto de Destino
+     OWLClass classPuertDest = Reglafactory.getOWLClass(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#PuertoDestino"));
+     OWLIndividual puertodest = Reglafactory.getOWLNamedIndividual(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#"+name_puertodestino));
+     
+     //Usamos el data factory para capturar las relaciones de Objetos
+     OWLObjectProperty  tieneAccion = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TieneAccion"));
+     OWLObjectProperty  tieneProtocolo = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TieneProtocolo"));
+     OWLObjectProperty  tieneDirFuente = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TieneDirFuente"));
+     OWLObjectProperty  tieneMascFuente = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TieneMaskFuente"));
+     OWLObjectProperty  tieneDirDestino = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TieneDirDest"));
+     OWLObjectProperty  tieneMascDest = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TieneMaskDest"));
+     OWLObjectProperty  tienePuertoFuente = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TienePuertoFuente"));
+     OWLObjectProperty  tienePuertoDest = Reglafactory.getOWLObjectProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#TienePuertoDestino"));
+     
+     //Usamos el data factory para capturar las relaciones de datos
+     OWLDataProperty valorID = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorID"));
+          //Accion NO porque los valores de accion ya estan en la ontologia
+          //Protocolo NO porque los valores posibles ya estan en la ontologia
+     OWLDataProperty valorDirFuente = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorDirFuente"));
+     OWLDataProperty valorMascFuente = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorMascFuente"));
+     OWLDataProperty valorDirDest = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorDirDest"));
+     OWLDataProperty valorMascDest = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorMascDest"));
+     OWLDataProperty valorPuertoFuente = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorSourcePort"));
+     OWLDataProperty valorPuertoDest = Reglafactory.getOWLDataProperty(IRI.create("http://www.semanticweb.org/ontologies/2012/9/Ontology1349832858426.owl#ValorPuertoDest"));
+     
+     //hacemos las conecciones de las relaciones de Objetos con el individuo ID
+     // estas relaciones las hacemos armando las tripletas  obj1 ---> relacion ---> obj2
+     OWLObjectPropertyAssertionAxiom AssertiontieneDirFuente = Reglafactory.getOWLObjectPropertyAssertionAxiom(tieneDirFuente,ID,dirfuente );
+     OWLObjectPropertyAssertionAxiom AssertiontieneAccion = Reglafactory.getOWLObjectPropertyAssertionAxiom(tieneAccion,ID,accion);
+     OWLObjectPropertyAssertionAxiom AssertiontieneProtocolo = Reglafactory.getOWLObjectPropertyAssertionAxiom(tieneProtocolo,ID,protocolo);
+     OWLObjectPropertyAssertionAxiom AssertiontieneMascFuente = Reglafactory.getOWLObjectPropertyAssertionAxiom(tieneMascFuente, ID,mascfuente);
+     OWLObjectPropertyAssertionAxiom AssertiontieneDirDest = Reglafactory.getOWLObjectPropertyAssertionAxiom(tieneDirDestino,ID,dirdest);
+     OWLObjectPropertyAssertionAxiom AssertiontieneMascDest = Reglafactory.getOWLObjectPropertyAssertionAxiom(tieneMascDest, ID, mascdest);
+     OWLObjectPropertyAssertionAxiom AssertiontienePuertoFuente = Reglafactory.getOWLObjectPropertyAssertionAxiom(tienePuertoFuente,ID, puertofuente);
+     OWLObjectPropertyAssertionAxiom AssertiontienePuertoDest = Reglafactory.getOWLObjectPropertyAssertionAxiom(tienePuertoDest,ID, puertodest);
+     
+     //Hacemos las conecciones entre los valores de las variables y las relaciones de Datos obj1 -> relacion -> valor
+     OWLDataPropertyAssertionAxiom dataAssertionID = Reglafactory.getOWLDataPropertyAssertionAxiom(valorID, ID, id_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionDirFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorDirFuente, dirfuente, dir_fuente_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionMascFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorMascFuente, mascfuente, mask_fuente_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionDirDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorDirDest, dirdest, dir_destino_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionMascDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorMascDest, mascdest, mask_destino_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionPuertoFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorPuertoFuente,puertofuente , puerto_fuente_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionPuertoDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorPuertoDest,puertodest , puerto_destino_regla);
+     
+     //Con un assertion incluimos los individuos a su respectiva clase en la ontologia
+     // y luego guardamos los cambios en la ontologia
+     OWLAxiom assertionID = Reglafactory.getOWLClassAssertionAxiom(classID,ID);
+     //Accion y protocolo YA existen en la ontologia
+     OWLAxiom assertionDirfuente = Reglafactory.getOWLClassAssertionAxiom(classDirFuente,dirfuente);
+     OWLAxiom assertionMascfuente = Reglafactory.getOWLClassAssertionAxiom(classMascFuente,mascfuente);
+     OWLAxiom assertionDirdest = Reglafactory.getOWLClassAssertionAxiom(classDirDest,dirdest);
+     OWLAxiom assertionMascdest = Reglafactory.getOWLClassAssertionAxiom(classMascDest,mascdest);
+     OWLAxiom assertionPuertofuente = Reglafactory.getOWLClassAssertionAxiom(classPuertFuente,puertofuente);
+     OWLAxiom assertionPuertodest = Reglafactory.getOWLClassAssertionAxiom(classPuertDest,puertodest);
+     
+     //agregamos las assertion a la ontologia que tenemos cargada en el programa
+     //ASSERTION DE CLASES
+     manager.applyChange(new AddAxiom(Onto,assertionID));
+     // Las assertion de accion y protocolo ya existen en la onologia, no hay que agregarlas. 
+     manager.applyChange(new AddAxiom(Onto,assertionDirfuente));
+     manager.applyChange(new AddAxiom(Onto,assertionMascfuente));
+     manager.applyChange(new AddAxiom(Onto,assertionDirdest));
+     manager.applyChange(new AddAxiom(Onto,assertionMascdest));
+     manager.applyChange(new AddAxiom(Onto,assertionPuertofuente));
+     manager.applyChange(new AddAxiom(Onto,assertionPuertodest));
+     
+     //ASSERTION DE OBJETOS
+     manager.applyChange(new AddAxiom(Onto,AssertiontieneAccion));
+     manager.applyChange(new AddAxiom(Onto,AssertiontieneProtocolo));
+     manager.applyChange(new AddAxiom(Onto,AssertiontieneDirFuente));
+     manager.applyChange(new AddAxiom(Onto,AssertiontieneMascFuente));
+     manager.applyChange(new AddAxiom(Onto,AssertiontieneDirDest));
+     manager.applyChange(new AddAxiom(Onto,AssertiontieneMascDest));
+     manager.applyChange(new AddAxiom(Onto,AssertiontienePuertoFuente));
+     manager.applyChange(new AddAxiom(Onto,AssertiontienePuertoDest));
+     
+     //ASSERTION DE DATOS
+     manager.applyChange(new AddAxiom(Onto,dataAssertionID));
+     manager.applyChange(new AddAxiom(Onto,dataAssertionDirFuente));
+     manager.applyChange(new AddAxiom(Onto,dataAssertionMascFuente));
+     manager.applyChange(new AddAxiom(Onto,dataAssertionDirDest));
+     manager.applyChange(new AddAxiom(Onto,dataAssertionMascDest));
+     manager.applyChange(new AddAxiom(Onto,dataAssertionPuertoFuente));
+     manager.applyChange(new AddAxiom(Onto,dataAssertionPuertoDest));
+     
+     //Guardamos los cambios en la ontologia
+     manager.saveOntology(Onto);
+     
+     System.out.println("Cantidad de individuals " + Onto.getIndividualsInSignature().size()); 
+  }   
+public static String ConvertirDireccionBits(String direccion, String mascara)//gracias al equipo y la comunidad de StackOverflow
+{   String Direccionbinario=" ";
+    int numerodezeros;
+    //convertimos la direccion de formato decimal a formato binario
+        try {
+             byte[] add = InetAddress.getByName(direccion).getAddress();
+             Direccionbinario = new BigInteger(1,add).toString(2); 
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       //Utilizamos el condicional para asegurarnos que Direccionbinario sea un string de 32bit de largo
+       // pues la conversion de bigInteger a String binario a veces no completa los 8 bits del primer octeto
+        if(Direccionbinario.length()< 32) 
+        { StringBuffer bufferDireccion = new StringBuffer(Direccionbinario);
+          numerodezeros = 32 - Direccionbinario.length();
+          for(int i; numerodezeros > 0; numerodezeros--) 
+            { bufferDireccion.insert(0,"0");//esto coloca la cantidad necesaria de 0 a la izq del buffer en la seccion mas significativa del binario en primer octeto
+            }
+          Direccionbinario = bufferDireccion.toString();
+        } 
+        
+   //Una vez calculado el CIDR seleccionamos los primeros N bits de la direccion IP correspondiantes al CIDR
+            //primero separamos el valor de Direccionbinario en un arreglo
+            String[] arregloDireccion = Direccionbinario.split("");
+            //blanquamos la variable Direccionbinario para cargar la cantidad de bits que deseamos
+            Direccionbinario = "";
+            for(int i=0;i< Integer.parseInt(mascara);i++)
+            { Direccionbinario = Direccionbinario + arregloDireccion[i+1];
+            }
+//    System.out.println("el ip es "+ Direccionbinario + " mascara "+ cidr);   
+    return Direccionbinario;
+}
+public static String ConvertirMascaraCIDR(String mascara)
+{  //convertimos la mascara de formato decimal a formato CIDR 
+    int cidr =0;
+   switch(mascara)
+   { case "32":{
+          cidr = 32;
+        }break;
+   default:{
+            try {
+            byte[] netmaskBytes = InetAddress.getByName(mascara).getAddress();
+             boolean zero = false;
+             for(byte b : netmaskBytes){
+                 int mask = 0x80;
+
+                 for(int i = 0; i < 8; i++){
+                     int result = b & mask;
+                     if(result == 0){
+                         zero = true;
+                     }else if(zero){
+                         throw new IllegalArgumentException("Invalid netmask.");
+                     } else {
+                         cidr++;
+                     }
+                     mask >>>= 1;
+                 }
+             }
+            }catch (UnknownHostException ex) {
+            Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
+            }//fin del try catch que calcula el CIDR
+        }  
+   }//fin del swithc(mascara)
+   return Integer.toString(cidr);
+}
+public static Integer CalcularPuerto(String puerto)
+{   int numerodepuerto;
+    String[] nombrepuerto = {"smtp","www","https","ssh","pop3","ftp","ftp-data","imap4","domain","h323","pptp","isakmp","ntp","netbios-ssn","pcanywhere-data","ldap"};
+    Integer[] numeropuerto = {25,80,443,22,110,20,21,143,53,1720,1723,500,123,137,5631,389};
+    //convertimos el arreglo de nombre de puerto a una lista
+    List lista = Arrays.asList(nombrepuerto);
+    if (lista.contains(puerto))
+    {   numerodepuerto = numeropuerto[lista.indexOf(puerto)];
+    }else 
+    { numerodepuerto = Integer.parseInt(puerto);
+    }
+
+    return numerodepuerto;
+}
+
+}

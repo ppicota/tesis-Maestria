@@ -1,3 +1,10 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package javaapplication1;
+
+
 import static org.semanticweb.owlapi.vocab.OWLFacet.*;
 //imports para readers
 import java.util.Scanner;
@@ -173,11 +180,9 @@ public class Testing_Reglas{
   public static void LineReader(OWLOntology Onto) throws IOException 
   {   //crear un path para encontrar el archivo.
      Charset ENCODING = StandardCharsets.UTF_8;
-     //Path en la Vostro
-     //Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/pix.txt");
-     Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/LiLpix.txt");
-     //Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/test_texto.txt");
-     //Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/iptable.txt");
+     //Path del archivo de reglas
+     Path direccion = Paths.get("C:/Users/PzP/Dropbox/Maestria TICs/TESIS/TestingProtege/lista de reglas de Firewall/pix_prueba.txt");
+     
      BufferedReader reader = Files.newBufferedReader(direccion,ENCODING);
      String line = null;
      int linea = 0;
@@ -259,15 +264,15 @@ public class Testing_Reglas{
                      }catch (OWLOntologyCreationException ex) {
                      Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
                      }   
-                    System.out.println("Id: "+id_regla);
-                    System.out.println("accion: "+ accion_regla);
-                    System.out.println("protocolo: "+ protocolo_regla);
-                    System.out.println("add fuente: "+ dir_fuente_regla);
-                    System.out.println("mask fuente: "+ mask_fuente_regla);
-                    System.out.println("dest add: "+ dir_destino_regla);
-                    System.out.println("mask destino: "+ mask_destino_regla);
-                    System.out.println("puerto fuente: "+ puerto_fuente_regla);
-                    System.out.println("puerto dest: "+ puerto_destino_regla);
+//                    System.out.println("Id: "+id_regla);
+//                    System.out.println("accion: "+ accion_regla);
+//                    System.out.println("protocolo: "+ protocolo_regla);
+//                    System.out.println("add fuente: "+ dir_fuente_regla);
+//                    System.out.println("mask fuente: "+ mask_fuente_regla);
+//                    System.out.println("dest add: "+ dir_destino_regla);
+//                    System.out.println("mask destino: "+ mask_destino_regla);
+//                    System.out.println("puerto fuente: "+ puerto_fuente_regla);
+//                    System.out.println("puerto dest: "+ puerto_destino_regla);
                    // }//fin de while (lineaDividir.hasMoreElements()
                 }// fin de if ("permit".equals(ValordeToken))
              //else si el valor no es permit entonces debe ser "deny"
@@ -327,7 +332,8 @@ public class Testing_Reglas{
                           default :{
                           }break;
                         }//fin Switch #4  
-                    }
+                    }//fin if(lineaDividir.hasMoreElements()
+                 //LLamamos a la funcion que carga los valores a la ontologia 
                      try {//Este Catch es para CreationException
                          try {//Este Catch es para StorageException 
                             CargarValoresAlaOntologia(Onto);
@@ -337,21 +343,25 @@ public class Testing_Reglas{
                      }catch (OWLOntologyCreationException ex) {
                      Logger.getLogger(Testing_Reglas.class.getName()).log(Level.SEVERE, null, ex);
                      }   
-                    System.out.println("Id: "+id_regla);
-                    System.out.println("accion: "+ accion_regla);
-                    System.out.println("protocolo: "+ protocolo_regla);
-                    System.out.println("add fuente: "+ dir_fuente_regla);
-                    System.out.println("mask fuente: "+ mask_fuente_regla);
-                    System.out.println("dest add: "+ dir_destino_regla);
-                    System.out.println("dest mask: "+ mask_destino_regla);
-                    System.out.println("puerto fuente: "+ puerto_fuente_regla);
-                    System.out.println("puerto dest: "+ puerto_destino_regla);
+                    
+//                    System.out.println("Id: "+id_regla);
+//                    System.out.println("accion: "+ accion_regla);
+//                    System.out.println("protocolo: "+ protocolo_regla);
+//                    System.out.println("add fuente: "+ dir_fuente_regla);
+//                    System.out.println("mask fuente: "+ mask_fuente_regla);
+//                    System.out.println("dest add: "+ dir_destino_regla);
+//                    System.out.println("dest mask: "+ mask_destino_regla);
+//                    System.out.println("puerto fuente: "+ puerto_fuente_regla);
+//                    System.out.println("puerto dest: "+ puerto_destino_regla);
                    // }//fin de while (lineaDividir.hasMoreElements()
                 }// fin de else ("deny".equals(ValordeToken))   
              
             }// fin de  while (lineaDividir.hasMoreElements())         
+          //reiniciamos los valores de los puertos. 
+                     puerto_fuente_regla= -1;
+                     puerto_destino_regla= -1;
      }// fin de while ((line = reader.readLine()) != null)
-   System.out.println(linea);  
+   System.out.println(linea);
   }
  
 public static void CargarValoresAlaOntologia(OWLOntology Onto) throws OWLOntologyCreationException, OWLOntologyStorageException
@@ -462,11 +472,11 @@ public static void CargarValoresAlaOntologia(OWLOntology Onto) throws OWLOntolog
      //Hacemos las conecciones entre los valores de las variables y las relaciones de Datos obj1 -> relacion -> valor
      OWLDataPropertyAssertionAxiom dataAssertionID = Reglafactory.getOWLDataPropertyAssertionAxiom(valorID, ID, id_regla);
      OWLDataPropertyAssertionAxiom dataAssertionDirFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorDirFuente, dirfuente, dir_fuente_regla);
-     OWLDataPropertyAssertionAxiom dataAssertionMascFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorMascFuente, mascfuente, mask_fuente_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionMascFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorMascFuente, mascfuente,Integer.parseInt(mask_fuente_regla));
      OWLDataPropertyAssertionAxiom dataAssertionDirDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorDirDest, dirdest, dir_destino_regla);
-     OWLDataPropertyAssertionAxiom dataAssertionMascDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorMascDest, mascdest, mask_destino_regla);
-     OWLDataPropertyAssertionAxiom dataAssertionPuertoFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorPuertoFuente,puertofuente , puerto_fuente_regla);
-     OWLDataPropertyAssertionAxiom dataAssertionPuertoDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorPuertoDest,puertodest , puerto_destino_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionMascDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorMascDest, mascdest, Integer.parseInt(mask_destino_regla));
+     OWLDataPropertyAssertionAxiom dataAssertionPuertoFuente = Reglafactory.getOWLDataPropertyAssertionAxiom(valorPuertoFuente,puertofuente ,puerto_fuente_regla);
+     OWLDataPropertyAssertionAxiom dataAssertionPuertoDest = Reglafactory.getOWLDataPropertyAssertionAxiom(valorPuertoDest,puertodest ,puerto_destino_regla);
      
      //Con un assertion incluimos los individuos a su respectiva clase en la ontologia
      // y luego guardamos los cambios en la ontologia
@@ -509,10 +519,10 @@ public static void CargarValoresAlaOntologia(OWLOntology Onto) throws OWLOntolog
      manager.applyChange(new AddAxiom(Onto,dataAssertionPuertoFuente));
      manager.applyChange(new AddAxiom(Onto,dataAssertionPuertoDest));
      
-     //Guardamos los cambios en la ontologia
+//     //Guardamos los cambios en la ontologia
      manager.saveOntology(Onto);
      
-     System.out.println("Cantidad de individuals " + Onto.getIndividualsInSignature().size()); 
+//     System.out.println("Cantidad de individuals " + Onto.getIndividualsInSignature().size()); 
   }   
 public static String ConvertirDireccionBits(String direccion, String mascara)//gracias al equipo y la comunidad de StackOverflow
 {   String Direccionbinario=" ";
@@ -590,8 +600,8 @@ public static Integer CalcularPuerto(String puerto)
     }else 
     { numerodepuerto = Integer.parseInt(puerto);
     }
-
     return numerodepuerto;
 }
 
 }
+ 
